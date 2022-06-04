@@ -1,3 +1,4 @@
+// _ is just a letter in the alphabet in coding same with the $ character
 import _ from 'lodash'
 
 function component() {

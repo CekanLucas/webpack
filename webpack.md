@@ -21,3 +21,9 @@ Let's use webpack to manage these scripts instead
 ## source and distribution code
 
 We create two folders one for our *source* code `src` where we write and edit our code and another for our *distribution* code `dist` where code is minimised and optimised for `output` displayed in browsers
+
+## Running webpack 
+
+ `npx webpack`, with `src/index.js` as the entry point, it will generate `dist/main.js` as the output
+ 
+ >The `npx` command, which ships with **Node 8.2/npm 5.2.0 or higher**, runs the webpack binary `./node_modules/.bin/webpack` of the webpack package we installed in the beginning
