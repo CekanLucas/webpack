@@ -27,3 +27,11 @@ We create two folders one for our *source* code `src` where we write and edit ou
  `npx webpack`, with `src/index.js` as the entry point, it will generate `dist/main.js` as the output
  
  >The `npx` command, which ships with **Node 8.2/npm 5.2.0 or higher**, runs the webpack binary `./node_modules/.bin/webpack` of the webpack package we installed in the beginning
+
+ ## webpack config
+
+ Once you have the `webpack.config.js` file you can use it in the build process
+
+    webpack --config ./webpack.config.js
+
+> Note webpack should pick up the config file automatically 
