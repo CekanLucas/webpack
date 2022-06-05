@@ -35,3 +35,44 @@ We create two folders one for our *source* code `src` where we write and edit ou
     webpack --config ./webpack.config.js
 
 > Note webpack should pick up the config file automatically 
+
+## Asset Management
+
+<p>Prior to webpack, front-end developers would use tools like <a href="https://gruntjs.com/">grunt</a> and <a href="https://gulpjs.com/">gulp</a> to process these assets and move them from their <code>/src</code> folder into their <code>/dist</code> or <code>/build</code> directory. The same idea was used for JavaScript modules, but tools like webpack will <strong>dynamically bundle</strong> all dependencies (creating what's known as a <a href="/concepts/dependency-graph">dependency graph</a>). This is great because every module now <em>explicitly states its dependencies</em> and we'll avoid bundling modules that aren't in use.</p>
+
+    npm install --save-dev style-loader css-loader
+
+#### webpack.config.js
+
+```diff
+ const path = require('path');
+
+ module.exports = {
+   entry: './src/index.js',
+   output: {
+     filename: 'bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+
+  module: {
+    rules: [
++      {
++        test: /\.css$/i,
++        use: ['style-loader', 'css-loader'],
++      },
+    ],
+  },
+ };
+```
+
+### Loader Chaining and order
+
+* Module loaders can be chained
+* Each loader in the chain applies transaformations to the processed resources
+* A chain is executed in order *first loader passes its results to the next one* then *next one and so forth*
+* Webpack expects last loader to be JavaScript
+* If loader order not followed there could be errors
+
+Best Order *otherwise webpack will throw error*
+1. `style-loader`
+1. `css-loader`
