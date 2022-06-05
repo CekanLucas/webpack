@@ -43,7 +43,6 @@ We create two folders one for our *source* code `src` where we write and edit ou
     npm install --save-dev style-loader css-loader
 
 #### webpack.config.js
-
 ```diff
  const path = require('path');
 
@@ -76,3 +75,35 @@ We create two folders one for our *source* code `src` where we write and edit ou
 Best Order *otherwise webpack will throw error*
 1. `style-loader`
 1. `css-loader`
+
+### Loading images
+
+Using Webpack 5 we can also Asset Modules to incorporate loading background images and icons not just css
+
+#### webpack.config.js
+```diff
+ const path = require('path');
+
+ module.exports = {
+   entry: './src/index.js',
+   output: {
+     filename: 'bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
++     {
++       test: /\.(png|svg|jpg|jpeg|gif)$/i,
++       type: 'asset/resource',
++     },
+    ],
+  },
+ };
+```
+
+If all goes well than the image will be proccessed into another file with a different name in the output folder *that means webpack successfully proccessed image*
