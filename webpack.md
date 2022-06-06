@@ -35,3 +35,186 @@ We create two folders one for our *source* code `src` where we write and edit ou
     webpack --config ./webpack.config.js
 
 > Note webpack should pick up the config file automatically 
+
+## Asset Management
+
+<p>Prior to webpack, front-end developers would use tools like <a href="https://gruntjs.com/">grunt</a> and <a href="https://gulpjs.com/">gulp</a> to process these assets and move them from their <code>/src</code> folder into their <code>/dist</code> or <code>/build</code> directory. The same idea was used for JavaScript modules, but tools like webpack will <strong>dynamically bundle</strong> all dependencies (creating what's known as a <a href="/concepts/dependency-graph">dependency graph</a>). This is great because every module now <em>explicitly states its dependencies</em> and we'll avoid bundling modules that aren't in use.</p>
+
+    npm install --save-dev style-loader css-loader
+
+#### webpack.config.js
+```diff
+ const path = require('path');
+
+ module.exports = {
+   entry: './src/index.js',
+   output: {
+     filename: 'bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+
+  module: {
+    rules: [
++      {
++        test: /\.css$/i,
++        use: ['style-loader', 'css-loader'],
++      },
+    ],
+  },
+ };
+```
+
+### Loader Chaining and order
+
+* Module loaders can be chained
+* Each loader in the chain applies transaformations to the processed resources
+* A chain is executed in order *first loader passes its results to the next one* then *next one and so forth*
+* Webpack expects last loader to be JavaScript
+* If loader order not followed there could be errors
+
+Best Order *otherwise webpack will throw error*
+1. `style-loader`
+1. `css-loader`
+
+### Loading images
+
+Using Webpack 5 we can also Asset Modules to incorporate loading background images and icons not just css
+
+#### webpack.config.js
+```diff
+ const path = require('path');
+
+ module.exports = {
+   entry: './src/index.js',
+   output: {
+     filename: 'bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
++     {
++       test: /\.(png|svg|jpg|jpeg|gif)$/i,
++       type: 'asset/resource',
++     },
+    ],
+  },
+ };
+```
+
+If all goes well than the image will be proccessed into another file with a different name in the output folder *that means webpack successfully proccessed image*
+
+### Loading Fonts
+
+So lets add a way to handle another type of asset which is fonts
+
+#### webpack.config.js
+```diff
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
++     {
++       test: /\.(woff|woff2|eot|ttf|otf)$/i,
++       type: 'asset/resource',
++     },
+    ],
+  },
+```
+## Loading Data
+
+Other asset that can be loaded such as Json, XML, CSV etc can also be used 
+
+Actually JSON suport is <u>inbuilt</u> for **NodeJS** for other data types we need to use loaders
+
+    npm i -D csv-loader xml-loader
+
+#### webpack.config.js
+```diff
+...
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
++     {
++       test: /\.(csv|tsv)$/i,
++       use: ['csv-loader'],
++     },
++     {
++       test: /\.xml$/i,
++       use: ['xml-loader'],
++     },
+    ],
+  },
+```
+
+### Customised parsers for JSON modules
+
+Its possible to import any `toml`, `yaml` or `json5` files as a JSON module using a [custom parser](https://webpack.js.org/configuration/module/#ruleparserparse) instead of a specific webpack loader 
+
+    npm i -D toml yaml json5
+
+#### webpack.config.js
+```diff
+...
+      {
+        test: /\.(csv|tsv)$/i,
+        use: ['csv-loader'],
+      },
+      {
+        test: /\.xml$/i,
+        use: ['xml-loader'],
+      },
++     {
++       test: /\.toml$/i,
++       type: 'json',
++       parser: {
++         parse: toml.parse,
++       },
++     },
++     {
++       test: /\.yaml$/i,
++       type: 'json',
++       parser: {
++         parse: yaml.parse,
++       },
++     },
++     {
++       test: /\.json5$/i,
++       type: 'json',
++       parser: {
++         parse: json5.parse,
++       },
++     },
+    ],
+  },
+```
+## Global Assets 
+
+You can group assets in a more intuitive way for example take a look at this structure
+
+```diff
+- |- /assets
++ |– /components
++ |  |– /my-component
++ |  |  |– index.jsx
++ |  |  |– index.css
++ |  |  |– icon.svg
++ |  |  |– img.png
+```
+
+You could lets say use the `/my-component` in another project provided the same loaders are used
