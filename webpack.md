@@ -220,3 +220,55 @@ You can group assets in a more intuitive way for example take a look at this str
 ```
 
 You could lets say use the `/my-component` in another project provided the same loaders are used
+
+## Output Management
+
+We would like to out put more than one file
+We can set up multiple entry points
+
+#### webpack.config.js
+
+```JavaScript
+module.exports = {
+  entry: {
+    index: './src/index.js',
+    print: './src/print.js',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+}
+```
+### HtmlWebpack Plugin
+What if we want to change one of the names of our files 
+
+
+#### webpack.config.js
+```js
+// import plugin after npm installing 
+const htmlWebpackPlugin = require('html-webpack-plugin')
+
+// add this to config 
+{
+  plugin: [
+    new htmlWebpackPlugin(
+      { title: 'Output Management' }
+    )
+  ]
+}
+```
+The plugin will generate its own index.html which means it will replace our own with its own minified version with all its bundles
+
+read more about htmlWebpackPlugin from [repo](https://github.com/jantimon/html-webpack-plugin)
+
+### Cleaning Output folder
+There will probably be a lot of clutter in output folder so we can config webpack to clean 
+
+```diff
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
++   clean: true,
+  }
+```
