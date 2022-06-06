@@ -107,3 +107,27 @@ Using Webpack 5 we can also Asset Modules to incorporate loading background imag
 ```
 
 If all goes well than the image will be proccessed into another file with a different name in the output folder *that means webpack successfully proccessed image*
+
+### Loading Fonts
+
+So lets add a way to handle another type of asset which is fonts
+
+#### webpack.config.js
+```diff
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
++     {
++       test: /\.(woff|woff2|eot|ttf|otf)$/i,
++       type: 'asset/resource',
++     },
+    ],
+  },
+```
