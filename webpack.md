@@ -361,3 +361,30 @@ If you build with these setting you should output `runtime.bundle.js` `shared.bu
 > **Advice**: Although multiple entry points can work with webpack it is better to use one entry point with multiple imports 
 > 
 > *This results in a better optimization and consistent execution order when using async script tags*
+
+#### SplitChunksPlugin
+[documentation](https://webpack.js.org/plugins/split-chunks-plugin/)
+This allows us to extract common dependencies into an existing entry chunk or an entirely new chunk
+
+``` diff
+const path = require('path')
+
+module.exports = {
+  mode: 'development',
+  entry: {
+    index: './src/index.js',
+    another: './src/another-module.js',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
++ optimization: {
++   splitChunks: {
++     chunks: 'all',
++   },
++ },
+}
+```
+
+Here is another plugin that helps split CSS from the main apllication [mini-css-extract-plugin](https://webpack.js.org/plugins/mini-css-extract-plugin)
