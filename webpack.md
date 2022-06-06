@@ -220,3 +220,66 @@ You can group assets in a more intuitive way for example take a look at this str
 ```
 
 You could lets say use the `/my-component` in another project provided the same loaders are used
+
+## Output Management
+
+We would like to out put more than one file
+We can set up multiple entry points
+
+#### webpack.config.js
+
+```JavaScript
+module.exports = {
+  entry: {
+    index: './src/index.js',
+    print: './src/print.js',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+}
+```
+### HtmlWebpack Plugin
+What if we want to change one of the names of our files 
+
+
+#### webpack.config.js
+```js
+// import plugin after npm installing 
+const htmlWebpackPlugin = require('html-webpack-plugin')
+
+// add this to config 
+{
+  plugin: [
+    new htmlWebpackPlugin(
+      { title: 'Output Management' }
+    )
+  ]
+}
+```
+The plugin will generate its own index.html which means it will replace our own with its own minified version with all its bundles
+
+read more about htmlWebpackPlugin from [repo](https://github.com/jantimon/html-webpack-plugin)
+
+### Cleaning Output folder
+There will probably be a lot of clutter in output folder so we can config webpack to clean 
+
+```diff
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
++   clean: true,
+  }
+```
+### Further Reading 
+#### Manifest 
+Webpack and its plugins seem to *know* what files are being generated 
+
+The is becuase in the manifest that webpack keeps to track how all the modules map to the output bundles 
+
+If you're interested in managing webpack's [output](https://webpack.js.org/configuration/output) in other ways, the manifest would be a good place to start
+
+The manifest data can be extracted into a json file for consumption using the [WebpackManifestPlugin](https://github.com/shellscape/webpack-manifest-plugin)
+
+[Concept page](https://webpack.js.org/concepts/manifest) 
