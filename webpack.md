@@ -283,3 +283,42 @@ If you're interested in managing webpack's [output](https://webpack.js.org/confi
 The manifest data can be extracted into a json file for consumption using the [WebpackManifestPlugin](https://github.com/shellscape/webpack-manifest-plugin)
 
 [Concept page](https://webpack.js.org/concepts/manifest) 
+
+## Code Splitting
+
+This feature allows you to split your code into various bundles which can then be loaded on demand or in parallel
+
+It can be used to achieve smaller bundles and control resource load prioritization which, if used correctly, can have a major impact on load time
+
+The general approaches for code splitting available:
+1. **Entry Points**: Manually split code using the `entry` config
+2. **Prevent Duplication**: Use Entry [dependencies](https://webpack.js.org/configuration/entry-context/#dependencies) or [SplitChunksPlugin](https://webpack.js.org/plugins/split-chunks-plugin/) to dedupe and split chunks
+3. **Dynamic Imports**: Split code via inline function calls within modules
+
+### Entry Points 
+We will have `src/another-module.js`
+
+#### webpack.config.js
+
+```diff
+ const path = require('path');
+ module.exports = {
+- entry: './src/index.js',
++ mode: 'development',
++ entry: {
++   index: './src/index.js',
++   another: './src/another-module.js',
++ },
+   output: {
+-   filename: 'main.js',
++   filename: '[name].bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+ };
+```
+**There Are Weaknesses**
+
+- If there are any duplicated modules between entry chunks they will be included in both bundles
+- It isn't as flexible and can't be used to dynamically split code with the core application logic
+
+> In our case `lodash` imported from both bundles hence we have some duplication
