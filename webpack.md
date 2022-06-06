@@ -283,3 +283,27 @@ If you're interested in managing webpack's [output](https://webpack.js.org/confi
 The manifest data can be extracted into a json file for consumption using the [WebpackManifestPlugin](https://github.com/shellscape/webpack-manifest-plugin)
 
 [Concept page](https://webpack.js.org/concepts/manifest) 
+
+## Development 
+
+There are some settings that you want for development but not neccessarily for the production
+
+### Source Maps
+
+**Problem**: Say you are bundling three source files `a.js`, `b.js` & `c.js` into `bundle.js` if you do a stack trace it will lead to `bundle.js` which is probably not useful
+
+**Soution**: <a href="http://blog.teamtreehouse.com/introduction-source-maps">source maps</a>, which map your compiled code back to your original source code. If an error originates from <code>b.js</code>, the source map will tell you exactly that
+
+There are lots of [options](https://webpack.js.org/configuration/devtool) for sourcemaps but we will try `inline-source-map`
+
+#### webpack.config.js
+```diff
++ mode: 'development',
++ devtool: 'inline-source-map',
+```
+If we have an error say in `print.js`
+
+Then if you build and run the index.html and look in console you get exactly where the error is in the console's error message with both **line and column number**
+
+    print.js:2 Uncaught ReferenceError: cosole is not defined
+    at HTMLButtonElement.printMe (print.js:2:1)
