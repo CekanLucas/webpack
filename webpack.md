@@ -272,7 +272,7 @@ There will probably be a lot of clutter in output folder so we can config webpac
 +   clean: true,
   }
 ```
-### Further Reading 
+### Further Reading
 #### Manifest 
 Webpack and its plugins seem to *know* what files are being generated 
 
@@ -307,3 +307,105 @@ Then if you build and run the index.html and look in console you get exactly whe
 
     print.js:2 Uncaught ReferenceError: cosole is not defined
     at HTMLButtonElement.printMe (print.js:2:1)
+
+### Automatic Builds
+
+It can be tedious to run `npm run build` 
+
+Multiple solutions
+1. **webpack's watch mode**
+1. **webpack's dev server**
+1. **webpack's dev middleware**
+
+### Watch mode
+
+#### package.json
+```diff
+   "scripts": {
+     "test": "echo \"Error: no test specified\" && exit 1",
++    "watch": "webpack --watch",
+     "build": "webpack"
+   },
+```
+**Unfortunately you need to refresh browser for changes to take effect**
+
+### Dev Server 
+
+    npm i -D webpack-dev-server
+
+#### webpack.config.js
+```diff
++  devserver: {
++    static: './dist',
++  },
+   plugins: [
+     new HtmlWebpackPlugin({
+       title: 'Development',
+     }),
+   ],
+   output: {
+     filename: '[name].bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+     clean: true,
+   },
++  optimization: {
++    runtimeChunk: 'single',
++  },
+ };
+```
+> **Note:** optimization was added becuase we used multiple enry points 
+
+> **Note:** `webpack-dev-server` serves bundled files from the directory defined in `output.path`, i.e., files will be available under` http://[devServer.host]:[devServer.port]/[output.publicPath]/[output.filename]`
+
+
+so now dev server will serve files from `./dist` on `localhost:8080`
+
+add this command to **npm scripts**
+
+    "start": "webpack serve --open"
+
+### More Documentation 
+
+[webpack-dev-server](https://webpack.js.org/configuration/dev-server)
+[hot module replacement](https://webpack.js.org/guides/hot-module-replacement)
+
+## Middleware 
+
+install `express` and `webpack-dev-middleware`
+
+```diff
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
++   publicPath: './',
+  },
+```
+
+this makes sure that files will be served on `http://localhost:8080`
+
+#### ./server.js
+```js
+const express = require('express')
+const webpack = require('webpack')
+const webpackDevMiddleware = require('webpack-dev-middleware')
+
+const app = express()
+const config = require('./webpack.config')
+const compiler = require(config)
+
+// Tell express to use the webpack-dev-middleware and use the webpack.config.js
+// configuration file as a base
+app.use(
+  webpackDevMiddleware(compiler, { publicPath: config.output.publicPath }),
+)
+
+// serve file on port 3000 
+app.listen(3000, () => {
+  console.log('Example app listening on port 3000!');
+})
+```
+
+now add npm script 
+    "server": "node server.js"
+
