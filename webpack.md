@@ -203,3 +203,18 @@ Its possible to import any `toml`, `yaml` or `json5` files as a JSON module usin
     ],
   },
 ```
+## Global Assets 
+
+You can group assets in a more intuitive way for example take a look at this structure
+
+```diff
+- |- /assets
++ |– /components
++ |  |– /my-component
++ |  |  |– index.jsx
++ |  |  |– index.css
++ |  |  |– icon.svg
++ |  |  |– img.png
+```
+
+You could lets say use the `/my-component` in another project provided the same loaders are used
