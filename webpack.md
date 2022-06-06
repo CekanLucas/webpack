@@ -37,6 +37,8 @@ We create two folders one for our *source* code `src` where we write and edit ou
 > Note webpack should pick up the config file automatically 
 
 ## Asset Management
+> **git branch `asset-management` contains the final code for this section**
+> Extra Reading on fonts: [SurviveJS](https://survivejs.com/webpack/loading/fonts/)
 
 <p>Prior to webpack, front-end developers would use tools like <a href="https://gruntjs.com/">grunt</a> and <a href="https://gulpjs.com/">gulp</a> to process these assets and move them from their <code>/src</code> folder into their <code>/dist</code> or <code>/build</code> directory. The same idea was used for JavaScript modules, but tools like webpack will <strong>dynamically bundle</strong> all dependencies (creating what's known as a <a href="/concepts/dependency-graph">dependency graph</a>). This is great because every module now <em>explicitly states its dependencies</em> and we'll avoid bundling modules that aren't in use.</p>
 
