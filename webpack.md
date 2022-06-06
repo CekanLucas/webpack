@@ -161,3 +161,45 @@ Actually JSON suport is <u>inbuilt</u> for **NodeJS** for other data types we ne
     ],
   },
 ```
+
+### Customised parsers for JSON modules
+
+Its possible to import any `toml`, `yaml` or `json5` files as a JSON module using a [custom parser](https://webpack.js.org/configuration/module/#ruleparserparse) instead of a specific webpack loader 
+
+    npm i -D toml yaml json5
+
+#### webpack.config.js
+```diff
+...
+      {
+        test: /\.(csv|tsv)$/i,
+        use: ['csv-loader'],
+      },
+      {
+        test: /\.xml$/i,
+        use: ['xml-loader'],
+      },
++     {
++       test: /\.toml$/i,
++       type: 'json',
++       parser: {
++         parse: toml.parse,
++       },
++     },
++     {
++       test: /\.yaml$/i,
++       type: 'json',
++       parser: {
++         parse: yaml.parse,
++       },
++     },
++     {
++       test: /\.json5$/i,
++       type: 'json',
++       parser: {
++         parse: json5.parse,
++       },
++     },
+    ],
+  },
+```
