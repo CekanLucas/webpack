@@ -298,9 +298,8 @@ The general approaches for code splitting available:
 ### Entry Points 
 We will have `src/another-module.js`
 
-#### webpack.config.js
-
 ```diff
++++ webpack.config.js
  const path = require('path');
  module.exports = {
 - entry: './src/index.js',
@@ -322,3 +321,43 @@ We will have `src/another-module.js`
 - It isn't as flexible and can't be used to dynamically split code with the core application logic
 
 > In our case `lodash` imported from both bundles hence we have some duplication
+
+### Prevent Duplication
+#### Entry Dependencies
+**Webpack.config.js**
+```diff
++++ webpack.config.js
+ const path = require('path');
+ module.exports = {
+  mode: 'development',
+  entry: {
+-   index: './src/index.js',
+-   another: './src/another-module.js',
++   index: {
++     import: './src/index.js',
++     dependOn: 'shared',
++   },
++   another: {
++     import: './src/another-module.js',
++     dependOn: 'shared',
++   },
++   shared: 'lodash',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
++ optimization: {
++   runtimeChunk: 'single',
++ }
+ };
+```
+For the [reason](https://bundlers.tooling.report/code-splitting/multi-entry/) for the optimization 
+
+As you can see the `dependsOn` option allows the sharing of modules between chunks
+
+If you build with these setting you should output `runtime.bundle.js` `shared.bundle.js` `index.bundle.js` `another.bundle.js`
+
+> **Advice**: Although multiple entry points can work with webpack it is better to use one entry point with multiple imports 
+> 
+> *This results in a better optimization and consistent execution order when using async script tags*
