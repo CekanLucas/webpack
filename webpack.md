@@ -272,3 +272,14 @@ There will probably be a lot of clutter in output folder so we can config webpac
 +   clean: true,
   }
 ```
+### Further Reading 
+#### Manifest 
+Webpack and its plugins seem to *know* what files are being generated 
+
+The is becuase in the manifest that webpack keeps to track how all the modules map to the output bundles 
+
+If you're interested in managing webpack's [output](https://webpack.js.org/configuration/output) in other ways, the manifest would be a good place to start
+
+The manifest data can be extracted into a json file for consumption using the [WebpackManifestPlugin](https://github.com/shellscape/webpack-manifest-plugin)
+
+[Concept page](https://webpack.js.org/concepts/manifest) 
