@@ -131,3 +131,33 @@ So lets add a way to handle another type of asset which is fonts
     ],
   },
 ```
+## Loading Data
+
+Other asset that can be loaded such as Json, XML, CSV etc can also be used 
+
+Actually JSON suport is <u>inbuilt</u> for **NodeJS** for other data types we need to use loaders
+
+    npm i -D csv-loader xml-loader
+
+#### webpack.config.js
+```diff
+...
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
++     {
++       test: /\.(csv|tsv)$/i,
++       use: ['csv-loader'],
++     },
++     {
++       test: /\.xml$/i,
++       use: ['xml-loader'],
++     },
+    ],
+  },
+```
