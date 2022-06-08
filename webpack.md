@@ -409,3 +409,121 @@ app.listen(3000, () => {
 now add npm script 
     "server": "node server.js"
 
+## Code Splitting
+
+This feature allows you to split your code into various bundles which can then be loaded on demand or in parallel
+
+It can be used to achieve smaller bundles and control resource load prioritization which, if used correctly, can have a major impact on load time
+
+The general approaches for code splitting available:
+1. **Entry Points**: Manually split code using the `entry` config
+2. **Prevent Duplication**: Use Entry [dependencies](https://webpack.js.org/configuration/entry-context/#dependencies) or [SplitChunksPlugin](https://webpack.js.org/plugins/split-chunks-plugin/) to dedupe and split chunks
+3. **Dynamic Imports**: Split code via inline function calls within modules
+
+### Entry Points 
+We will have `src/another-module.js`
+
+```diff
++++ webpack.config.js
+ const path = require('path');
+ module.exports = {
+- entry: './src/index.js',
++ mode: 'development',
++ entry: {
++   index: './src/index.js',
++   another: './src/another-module.js',
++ },
+   output: {
+-   filename: 'main.js',
++   filename: '[name].bundle.js',
+     path: path.resolve(__dirname, 'dist'),
+   },
+ };
+```
+**There Are Weaknesses**
+
+- If there are any duplicated modules between entry chunks they will be included in both bundles
+- It isn't as flexible and can't be used to dynamically split code with the core application logic
+
+> In our case `lodash` imported from both bundles hence we have some duplication
+
+### Prevent Duplication
+#### Entry Dependencies
+**Webpack.config.js**
+```diff
++++ webpack.config.js
+ const path = require('path');
+ module.exports = {
+  mode: 'development',
+  entry: {
+-   index: './src/index.js',
+-   another: './src/another-module.js',
++   index: {
++     import: './src/index.js',
++     dependOn: 'shared',
++   },
++   another: {
++     import: './src/another-module.js',
++     dependOn: 'shared',
++   },
++   shared: 'lodash',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
++ optimization: {
++   runtimeChunk: 'single',
++ }
+ };
+```
+For the [reason](https://bundlers.tooling.report/code-splitting/multi-entry/) for the optimization 
+
+As you can see the `dependsOn` option allows the sharing of modules between chunks
+
+If you build with these setting you should output `runtime.bundle.js` `shared.bundle.js` `index.bundle.js` `another.bundle.js`
+
+> **Advice**: Although multiple entry points can work with webpack it is better to use one entry point with multiple imports 
+> 
+> *This results in a better optimization and consistent execution order when using async script tags*
+
+#### SplitChunksPlugin
+[documentation](https://webpack.js.org/plugins/split-chunks-plugin/)
+This allows us to extract common dependencies into an existing entry chunk or an entirely new chunk
+
+``` diff
+const path = require('path')
+
+module.exports = {
+  mode: 'development',
+  entry: {
+    index: './src/index.js',
+    another: './src/another-module.js',
+  },
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
++ optimization: {
++   splitChunks: {
++     chunks: 'all',
++   },
++ },
+}
+```
+
+Here is another plugin that helps split CSS from the main apllication [mini-css-extract-plugin](https://webpack.js.org/plugins/mini-css-extract-plugin)
+
+## Dynamic Imports
+
+Two similiar ways for dynamic code splitting 
+
+1. [import() syntax](https://webpack.js.org/api/module-methods/#import-1) conforms to [ECMAScript proposal](https://github.com/tc39/proposal-dynamic-import)
+2. *Legacy Approach*: [require.ensure](https://webpack.js.org/api/module-methods/#requireensure)  
+
+### Import Syntax
+
+> `import()` calls use <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promises</a> internally. 
+If you use <code>import()</code> with older browsers (e.g., IE 11), 
+remember to shim <code>Promise</code> using a polyfill 
+such as <a href="https://github.com/stefanpenner/es6-promise">es6-promise</a> or <a href="https://github.com/taylorhakes/promise-polyfill">promise-polyfill</a>
