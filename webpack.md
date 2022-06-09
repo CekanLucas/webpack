@@ -388,3 +388,51 @@ module.exports = {
 ```
 
 Here is another plugin that helps split CSS from the main apllication [mini-css-extract-plugin](https://webpack.js.org/plugins/mini-css-extract-plugin)
+
+## Dynamic Imports
+
+Two similiar ways for dynamic code splitting 
+
+1. [import() syntax](https://webpack.js.org/api/module-methods/#import-1) conforms to [ECMAScript proposal](https://github.com/tc39/proposal-dynamic-import)
+2. *Legacy Approach*: [require.ensure](https://webpack.js.org/api/module-methods/#requireensure)  
+
+### Import Syntax
+
+> `import()` calls use <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">promises</a> internally. 
+If you use <code>import()</code> with older browsers (e.g., IE 11), 
+remember to shim <code>Promise</code> using a polyfill 
+such as <a href="https://github.com/stefanpenner/es6-promise">es6-promise</a> or <a href="https://github.com/taylorhakes/promise-polyfill">promise-polyfill</a>
+
+```js
+// Using Dynamic Imports to import lodash
+
+function getComponent() {
+  return import('lodash').then(({ default: _ }) => {
+    const element = document.createElement('div')
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ')
+  })
+}
+
+getComponent().then((component) => {
+  document.body.appendChild(component)
+})
+
+```
+
+> **Note:** The reason we need <code>default</code> is that since webpack 4, when importing a CommonJS module, the import will no longer resolve to the value of <code>module.exports</code>, it will instead create an artificial namespace object for the CommonJS module. For more information on the reason behind this, read <a href="https://medium.com/webpack/webpack-4-import-and-commonjs-d619d626b655">webpack 4: import() and CommonJs</a>.
+
+Above we have `import()` function return a promise however we can use the `async/await`
+
+``` sh
+[webpack-cli] Compilation finished
+asset vendors-node_modules_lodash_lodash_js.bundle.js 549 KiB [compared for emit] (id hint: vendors)
+asset index.bundle.js 13.5 KiB [compared for emit] (name: index)
+runtime modules 7.37 KiB 11 modules
+cacheable modules 530 KiB
+  ./src/index.js 434 bytes [built] [code generated]
+  # below line shows that lodash is bundled seperately
+  ./node_modules/lodash/lodash.js 530 KiB [built] [code generated]
+webpack 5.4.0 compiled successfully in 268 ms
+```
+
+

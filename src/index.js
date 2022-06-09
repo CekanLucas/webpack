@@ -1,13 +1,14 @@
-// _ is just a letter in the alphabet in coding same with the $ character
-import _ from 'lodash'
+// Using Dynamic Imports to import lodash
+// Using async / await syntax
 
-function component() {
+async function getComponent() {
   const element = document.createElement('div')
-
-  // Lodash, now imported by script
+  const { default: _ } = await import('lodash')
   element.innerHTML = _.join(['Hello', 'webpack'], ' ')
-
   return element
 }
 
-document.body.appendChild(component())
+getComponent().then((component) => {
+  document.body.appendChild(component)
+})
+
