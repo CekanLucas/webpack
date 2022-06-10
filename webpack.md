@@ -527,3 +527,105 @@ Two similiar ways for dynamic code splitting
 If you use <code>import()</code> with older browsers (e.g., IE 11), 
 remember to shim <code>Promise</code> using a polyfill 
 such as <a href="https://github.com/stefanpenner/es6-promise">es6-promise</a> or <a href="https://github.com/taylorhakes/promise-polyfill">promise-polyfill</a>
+
+```js
+// Using Dynamic Imports to import lodash
+
+function getComponent() {
+  return import('lodash').then(({ default: _ }) => {
+    const element = document.createElement('div')
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ')
+  })
+}
+
+getComponent().then((component) => {
+  document.body.appendChild(component)
+})
+
+```
+
+> **Note:** The reason we need <code>default</code> is that since webpack 4, when importing a CommonJS module, the import will no longer resolve to the value of <code>module.exports</code>, it will instead create an artificial namespace object for the CommonJS module. For more information on the reason behind this, read <a href="https://medium.com/webpack/webpack-4-import-and-commonjs-d619d626b655">webpack 4: import() and CommonJs</a>.
+
+Above we have `import()` function return a promise however we can use the `async/await`
+
+``` sh
+[webpack-cli] Compilation finished
+asset vendors-node_modules_lodash_lodash_js.bundle.js 549 KiB [compared for emit] (id hint: vendors)
+asset index.bundle.js 13.5 KiB [compared for emit] (name: index)
+runtime modules 7.37 KiB 11 modules
+cacheable modules 530 KiB
+  ./src/index.js 434 bytes [built] [code generated]
+  # below line shows that lodash is bundled seperately
+  ./node_modules/lodash/lodash.js 530 KiB [built] [code generated]
+webpack 5.4.0 compiled successfully in 268 ms
+```
+
+## Preloading / Prefetching modules
+
+You can give **resource hints** to the browser 
+
+-  **prefetch**: resource is probably needed for some navigation in the future
+-  **preload**: resource will also be needed during the current navigation
+
+### example 
+
+Imageine a *HomePage Component*, which renders a `LoginButton` component which then on demand loads a `LoginModal` component after being clicked.
+
+```ts
+/**** LoginButton.js ****/
+
+//...
+import(/* webpackPrefetch: true */ './path/to/LoginModal.js');
+```
+This will result in below being appended in the head of the page, which will instruct the browser to prefetch in idle time the `login-modal-chunk.js` file.
+```html
+<link rel="prefetch" href="login-modal-chunk.js">
+```
+
+**Differences between preload and prefetch directive**:
+
+- A preloaded chunk starts loading in parallel to the parent chunk whilst a prefetched chunk starts after the parent chunk finishes loading
+
+- A preloaded chunk has medium priority and is instantly downloaded a prefetched chunk is downloaded while the browser is idle
+
+- A preloaded chunk should be instantly requested by the parent chunk a prefetched chunk can be used anytime in the future
+
+- Browser support is different
+
+```ts
+/**** ChartComponent.js ****/
+
+//...
+import(/* webpackPreload: true */ 'ChartingLibrary');
+```
+When a page which uses the ChartComponent is requested, the `charting-library-chunk` is also requested via below link 
+
+```html
+<!-- outputed html -->
+<link rel="preload">
+```
+Assuming the page-chunk is smaller and finishes faster, the page will be displayed with a LoadingIndicator, until the already requested `charting-library-chunk` finishes. This will give a little load time boost since it only needs one round-trip instead of two. Especially in <dfn title="In computing, 'latency' describes some type of delay. It typically refers to delays in transmitting or processing data, which can be caused by a wide variety of reasons">high-latency environments</dfn>
+
+> **Note** that webpackpreload can actually hurt performance if not used correctly
+
+## Bundle Analysis
+
+Once you start splitting your code, it can be useful to analyze the output to check where modules have ended up. The [official analyze tool](https://github.com/webpack/analyse) is a good place to start
+
+Other Tools:
+
+- [webpack-chart](https://alexkuz.github.io/webpack-chart/): Interactive pie chart for webpack stats
+
+- [webpack-visualizer](https://chrisbateman.github.io/webpack-visualizer/): Visualize and analyze your bundles to see which modules are taking up space and which might be duplicates
+
+- [webpack-bundle-analyzer](https://github.com/webpack-contrib/webpack-bundle-analyzer): A plugin and CLI utility that represents bundle content as a convenient interactive zoomable treemap
+
+- [webpack bundle optimize helper](https://webpack.jakoblind.no/optimize): This tool will analyze your bundle and give you actionable suggestions on what to improve to reduce your bundle size
+
+- [bundle-stats](https://github.com/bundle-stats/bundle-stats): Generate a bundle report(bundle size, assets, modules) and compare the results between different builds
+
+### Further Reading
+
+[<link rel="prefetch/preload"/> in webpack](https://medium.com/webpack/link-rel-prefetch-preload-in-webpack-51a52358f84c)
+[Preload, Prefetch And Priorities in Chrome](https://medium.com/reloading/preload-prefetch-and-priorities-in-chrome-776165961bbf)
+[Preloading content with <link rel="preload"/>](https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content)
