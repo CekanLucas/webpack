@@ -629,3 +629,25 @@ Other Tools:
 [<link rel="prefetch/preload"/> in webpack](https://medium.com/webpack/link-rel-prefetch-preload-in-webpack-51a52358f84c)
 [Preload, Prefetch And Priorities in Chrome](https://medium.com/reloading/preload-prefetch-and-priorities-in-chrome-776165961bbf)
 [Preloading content with <link rel="preload"/>](https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content)
+
+## Caching
+
+```diff
++++ webpack.config.js
+    output: {
+     filename: 'bundle.js',
++    filename: '[name].[contenthash].js',
+      path: path.resolve(__dirname, 'dist'),
+      clean: true,
+    },
+```
+```sh
+# notice the hash so each time we build we have a different file
+asset main.629b90e6e38badf3e1a3.js 554 KiB [emitted] [immutable] (name: main)
+asset index.html 248 bytes [emitted] [compared for emit]
+runtime modules 1.25 KiB 6 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 235 ms
+```
