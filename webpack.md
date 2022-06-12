@@ -786,3 +786,8 @@ webpack 5.73.0 compiled successfully in 245 ms
 
 ### Further Reading
 [issue 652](https://github.com/webpack/webpack.js.org/issues/652)
+
+## Authoring Library 
+
+If you want to use webpack as a bundling strategy as a library author
+see this [section](https://webpack.js.org/guides/author-libraries/)
