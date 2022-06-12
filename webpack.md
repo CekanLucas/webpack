@@ -791,3 +791,28 @@ webpack 5.73.0 compiled successfully in 245 ms
 
 If you want to use webpack as a bundling strategy as a library author
 see this [section](https://webpack.js.org/guides/author-libraries/)
+
+## Environment Variables
+
+Environment varibales could be set from the command line
+    
+    npx webpack --env goal=local --env production --progress
+
+**Note**: the variables without assignment mean set to true so `--env production` means production variables set to true
+
+```js
+/* Webpack.config.js */
+module.exports = (env) => {
+  // use env.<YOUR ENVIRONMENT VARIABLE> here
+  console.log('Goal: ', env.goal) // 'local
+  console.log('Production: ', env.production) // true
+  return {
+    mode: 'development',
+    entry: './src/index.js',
+    plugins: [
+      new HtmlWebpackPlugin({
+        title: 'Caching',
+      }),
+      ...
+```
+> **Run `npm run prod-build` to run the code above**
