@@ -651,3 +651,26 @@ cacheable modules 532 KiB
   ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
 webpack 5.73.0 compiled successfully in 235 ms
 ```
+
+### Extracting Boilerplate
+
+```diff
++++ webpack.config.js
+  optimization: {
++   runtimeChunk: 'single',
+  },
+```
+
+As we learned in code splitting, the `SplitChunksPlugin` can be used to split modules out into separate bundles. Webpack provides an optimization feature to split runtime code into a separate chunk using the `optimization.runtimeChunk` option. Set it to single to create a `single` runtime bundle for all chunks
+
+**Now when we build we see the single runtime chunk**
+```
+assets by status 559 KiB [cached] 2 assets
+asset index.html 309 bytes [compared for emit]
+Entrypoint main 559 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB main.6bd62deb07d784980e57.js 551 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 236 ms
+```
