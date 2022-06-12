@@ -674,3 +674,43 @@ cacheable modules 532 KiB
   ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
 webpack 5.73.0 compiled successfully in 236 ms
 ```
+
+#### Split Chunks
+
+It's also good practice to extract third-party libraries, such as `lodash` or `react`, to a separate vendor chunk as they are less likely to change than our local source code
+
+**This step will allow clients to request even less from the server to stay up to date** 
+
+This can be done by using the `cacheGroups` option of the `SplitChunksPlugin` demonstrated in Example 2 of `SplitChunksPlugin`. Lets add `optimization.splitChunks` with `cacheGroups` with next params and build
+
+```diff
++++ webpack.config.js 
+  optimization: {
++  runtimeChunk: 'single',
++  splitChunks: {
++    cacheGroups: {
++      vendor: {
++        test: /[\\/]node_modules[\\/]/,
++        name: 'vendors',
++        chunks: 'all',
++      },
++    },
++  },
+  },
+
++++ Build Output
+assets by status 7.6 KiB [cached] 1 asset
+assets by path *.js 552 KiB
++++ Notice that 550 kib vendor code is bundled seperately from main
+  asset vendors.67c601fb2ab0c8ea0300.js 550 KiB [emitted] [immutable] (name: vendors) (id hint: vendor)
+  asset main.cbc3e7ebe312d5e38daa.js 1.89 KiB [emitted] [immutable] (name: main)
+asset index.html 370 bytes [emitted]
+Entrypoint main 559 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB vendors.67c601fb2ab0c8ea0300.js 550 KiB main.cbc3e7ebe312d5e38daa.js 1.89 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 233 ms
+```
+
+
