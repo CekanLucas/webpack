@@ -713,4 +713,76 @@ cacheable modules 532 KiB
 webpack 5.73.0 compiled successfully in 233 ms
 ```
 
+### Module Identifiers
 
+``` diff
++++ file structure  
+webpack-demo
+|- package.json
+|- package-lock.json
+|- webpack.config.js
+|- /dist
+|- /src
+  |- index.js
++ |- print.js
+|- /node_modules
+
++++ print.js
+ export default function print(text) {
+   console.log(text);
+ };
+
++++ src/index.js
+
+  import _ from 'lodash';
++ import Print from './print';
+
+  function component() {
+    const element = document.createElement('div');
+
+    // Lodash, now imported by this script
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
++   element.onclick = Print.bind(null, 'Hello webpack!');
+
+    return element;
+  }
+
+  document.body.appendChild(component())
+
++++ build output
+assets by status 557 KiB [cached] 2 assets
+assets by path . 2.97 KiB
+  asset main.7393d2b62acc27b80750.js 2.61 KiB [emitted] [immutable] (name: main)
+  asset index.html 370 bytes [emitted] [compared for emit]
+Entrypoint main 560 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB vendors.67c601fb2ab0c8ea0300.js 550 KiB main.7393d2b62acc27b80750.js 2.61 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 406 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+  ./src/print.js 61 bytes [built] [code generated]
+webpack 5.73.0 compiled successfully in 245 ms
+```
+ All bundles have a different hash lets change that for the `vendors module`
+ > this is because each `module.id` is incremted to the next
+
+```diff
++++ webpack.config.js
+  optimization: {
++   moduleIds: 'deterministic',
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+```
+
+> Now the vendors hash would be the same between builds
+
+### Further Reading
+[issue 652](https://github.com/webpack/webpack.js.org/issues/652)

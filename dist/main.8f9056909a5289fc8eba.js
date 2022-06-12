@@ -9,20 +9,20 @@
  */
 (self["webpackChunkwebpack"] = self["webpackChunkwebpack"] || []).push([["main"],{
 
-/***/ "./src/index.js":
+/***/ 138:
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ \"./node_modules/lodash/lodash.js\");\n/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);\n// _ is just a letter in the alphabet in coding same with the $ character\n\n\nfunction component() {\n  const element = document.createElement('div')\n\n  // Lodash, now imported by script\n  element.innerHTML = lodash__WEBPACK_IMPORTED_MODULE_0___default().join(['Hello', 'webpack'], ' ')\n\n  return element\n}\n\ndocument.body.appendChild(component())\n\n\n\n//# sourceURL=webpack://webpack/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ 486);\n/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);\n// _ is just a letter in the alphabet in coding same with the $ character\n\n// import Print from './print'\n\nfunction component() {\n  const element = document.createElement('div')\n\n  // Lodash, now imported by script\n  element.innerHTML = lodash__WEBPACK_IMPORTED_MODULE_0___default().join(['Hello', 'webpack'], ' ')\n  // element.onclick = Print.bind(null, 'Hello webpack!')\n\n  return element\n}\n\ndocument.body.appendChild(component())\n\n\n\n//# sourceURL=webpack://webpack/./src/index.js?");
 
 /***/ })
 
 },
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ __webpack_require__.O(0, ["vendors"], () => (__webpack_exec__("./src/index.js")));
+/******/ __webpack_require__.O(0, ["vendors"], () => (__webpack_exec__(138)));
 /******/ var __webpack_exports__ = __webpack_require__.O();
 /******/ }
 ]);
