@@ -629,3 +629,160 @@ Other Tools:
 [<link rel="prefetch/preload"/> in webpack](https://medium.com/webpack/link-rel-prefetch-preload-in-webpack-51a52358f84c)
 [Preload, Prefetch And Priorities in Chrome](https://medium.com/reloading/preload-prefetch-and-priorities-in-chrome-776165961bbf)
 [Preloading content with <link rel="preload"/>](https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content)
+
+## Caching
+
+```diff
++++ webpack.config.js
+    output: {
+     filename: 'bundle.js',
++    filename: '[name].[contenthash].js',
+      path: path.resolve(__dirname, 'dist'),
+      clean: true,
+    },
+```
+```sh
+# notice the hash so each time we build we have a different file
+asset main.629b90e6e38badf3e1a3.js 554 KiB [emitted] [immutable] (name: main)
+asset index.html 248 bytes [emitted] [compared for emit]
+runtime modules 1.25 KiB 6 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 235 ms
+```
+
+### Extracting Boilerplate
+
+```diff
++++ webpack.config.js
+  optimization: {
++   runtimeChunk: 'single',
+  },
+```
+
+As we learned in code splitting, the `SplitChunksPlugin` can be used to split modules out into separate bundles. Webpack provides an optimization feature to split runtime code into a separate chunk using the `optimization.runtimeChunk` option. Set it to single to create a `single` runtime bundle for all chunks
+
+**Now when we build we see the single runtime chunk**
+```
+assets by status 559 KiB [cached] 2 assets
+asset index.html 309 bytes [compared for emit]
+Entrypoint main 559 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB main.6bd62deb07d784980e57.js 551 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 236 ms
+```
+
+#### Split Chunks
+
+It's also good practice to extract third-party libraries, such as `lodash` or `react`, to a separate vendor chunk as they are less likely to change than our local source code
+
+**This step will allow clients to request even less from the server to stay up to date** 
+
+This can be done by using the `cacheGroups` option of the `SplitChunksPlugin` demonstrated in Example 2 of `SplitChunksPlugin`. Lets add `optimization.splitChunks` with `cacheGroups` with next params and build
+
+```diff
++++ webpack.config.js 
+  optimization: {
++  runtimeChunk: 'single',
++  splitChunks: {
++    cacheGroups: {
++      vendor: {
++        test: /[\\/]node_modules[\\/]/,
++        name: 'vendors',
++        chunks: 'all',
++      },
++    },
++  },
+  },
+
++++ Build Output
+assets by status 7.6 KiB [cached] 1 asset
+assets by path *.js 552 KiB
++++ Notice that 550 kib vendor code is bundled seperately from main
+  asset vendors.67c601fb2ab0c8ea0300.js 550 KiB [emitted] [immutable] (name: vendors) (id hint: vendor)
+  asset main.cbc3e7ebe312d5e38daa.js 1.89 KiB [emitted] [immutable] (name: main)
+asset index.html 370 bytes [emitted]
+Entrypoint main 559 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB vendors.67c601fb2ab0c8ea0300.js 550 KiB main.cbc3e7ebe312d5e38daa.js 1.89 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 323 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+webpack 5.73.0 compiled successfully in 233 ms
+```
+
+### Module Identifiers
+
+``` diff
++++ file structure  
+webpack-demo
+|- package.json
+|- package-lock.json
+|- webpack.config.js
+|- /dist
+|- /src
+  |- index.js
++ |- print.js
+|- /node_modules
+
++++ print.js
+ export default function print(text) {
+   console.log(text);
+ };
+
++++ src/index.js
+
+  import _ from 'lodash';
++ import Print from './print';
+
+  function component() {
+    const element = document.createElement('div');
+
+    // Lodash, now imported by this script
+    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
++   element.onclick = Print.bind(null, 'Hello webpack!');
+
+    return element;
+  }
+
+  document.body.appendChild(component())
+
++++ build output
+assets by status 557 KiB [cached] 2 assets
+assets by path . 2.97 KiB
+  asset main.7393d2b62acc27b80750.js 2.61 KiB [emitted] [immutable] (name: main)
+  asset index.html 370 bytes [emitted] [compared for emit]
+Entrypoint main 560 KiB = runtime.03d2c3d5a26e3844f8af.js 7.6 KiB vendors.67c601fb2ab0c8ea0300.js 550 KiB main.7393d2b62acc27b80750.js 2.61 KiB
+runtime modules 3.64 KiB 8 modules
+cacheable modules 532 KiB
+  ./src/index.js 406 bytes [built] [code generated]
+  ./node_modules/lodash/lodash.js 531 KiB [built] [code generated]
+  ./src/print.js 61 bytes [built] [code generated]
+webpack 5.73.0 compiled successfully in 245 ms
+```
+ All bundles have a different hash lets change that for the `vendors module`
+ > this is because each `module.id` is incremted to the next
+
+```diff
++++ webpack.config.js
+  optimization: {
++   moduleIds: 'deterministic',
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+```
+
+> Now the vendors hash would be the same between builds
+
+### Further Reading
+[issue 652](https://github.com/webpack/webpack.js.org/issues/652)
