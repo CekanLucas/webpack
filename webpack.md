@@ -1,3 +1,7 @@
+### Resources 
+Most of these notes based on [formal webpack documentation](https://webpack.js.org/guides/)
+Alternative Webpack online book by [SurviveJS](https://survivejs.com/webpack/introduction/)
+
 ```jsonc
 /* To use webpack we need the api & the cli */
   "devDependencies": {
